@@ -1,3 +1,3 @@
-const { PORT, DATABASE_URL } = process.env;
+const { PORT, DATABASE_URL, TOKEN_SECRET } = process.env;
 
-export { PORT, DATABASE_URL };
+export { PORT, DATABASE_URL, TOKEN_SECRET };
