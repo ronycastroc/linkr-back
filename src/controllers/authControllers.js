@@ -42,9 +42,14 @@ const signIn = async (req, res) => {
 
         await authRepository.deleteSession(user);
 
-        await authRepository.insertSession(user, token);
+        await authRepository.insertSession(user, token);    
 
-        res.status(200).send({ token });  
+        res.status(200).send({ 
+            name: user[0].name,
+            email: user[0].email,
+            urlImage: user[0].urlImage,
+            token 
+        });  
 
     } catch (error) {
         res.status(500).send(error.message);
