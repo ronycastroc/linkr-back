@@ -1,5 +1,5 @@
 import pg from "pg";
-import { DATABASE_URL } from "../configs/constants..js";
+import { DATABASE_URL } from "../configs/constants.js";
 
 const { Pool } = pg;
 
