@@ -1,35 +1,15 @@
-import { connection } from "../database/db.js";
-import joi from "joi";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
-const signUpSchema = joi.object({
-    name: joi.string().min(2).max(50).required(),
-    email: joi.string().email().required(),
-    password: joi.string().min(6).max(100).required(),
-    confirmPassword: joi.string().required(),
-    urlImage: joi.string().required()
-});
+import { TOKEN_SECRET } from "../configs/constants.js";
+import * as authRepository from "../repositories/authRepository.js";
 
 const signUp = async (req, res) => {
-    const { name, email, password, confirmPassword, urlImage } = req.body;
-
-    const validation = signUpSchema.validate(req.body, { abortEarly: false });
-
-    if(validation.error) {
-        const error = validation.error.details.map(value => value.message);
-
-        return res.status(422).send(error);
-    }
-
-    if(password !== confirmPassword) {
-        return res.status(422).send("Wrong Password");
-    }
+    const { name, email, password, urlImage } = res.locals.user;    
 
     try {
         new URL(urlImage);
 
-        const users = (await connection.query('SELECT * FROM users;')).rows
+        const users = await authRepository.listUsers();
 
         const isUser = users.find(value => value.email === email);
 
@@ -39,11 +19,7 @@ const signUp = async (req, res) => {
 
         const passwordHash = bcrypt.hashSync(password, 10);
 
-        await connection.query(`
-            INSERT INTO users
-                (name, email, password, "urlImage")
-            VALUES
-                ($1, $2, $3, $4);`, [name, email, passwordHash, urlImage]);
+        await authRepository.insertUser(name, email, passwordHash, urlImage);
         
         res.sendStatus(201);
 
@@ -52,4 +28,32 @@ const signUp = async (req, res) => {
     }
 };
 
-export { signUp };
+const signIn = async (req, res) => {
+    const { email, password } = res.locals.user;    
+
+    try {
+        const user = await authRepository.listUser(email);
+
+        if(user.length === 0 || !bcrypt.compareSync(password, user[0].password)) {
+            return res.sendStatus(401);
+        }
+
+        const token = jwt.sign({ user: user[0].id }, TOKEN_SECRET);
+
+        await authRepository.deleteSession(user);
+
+        await authRepository.insertSession(user, token);    
+
+        res.status(200).send({ 
+            name: user[0].name,
+            email: user[0].email,
+            urlImage: user[0].urlImage,
+            token 
+        });  
+
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export { signUp, signIn };
