@@ -11,6 +11,9 @@ const timelineSchema=joi.object({
 const postLink=async(req,res)=>{
     //midleware
     const {url,id}=req.body;
+    const urlMetadatas= urlMetadata;
+    let metadatas;
+    let description,image,title;
     let {text}=req.body;
     if(!text){
         text=null;
@@ -28,21 +31,24 @@ const postLink=async(req,res)=>{
     if (!userIdValidation){
         res.sendStatus(409);
     }
+    metadatas =  await urlMetadatas(url)
+
     } catch (error) {
         console.log(error);
     }
 
-
-
     //midleware
+   description=metadatas.description
+   image=metadatas.image
+   title=metadatas.title
     try {
         await connection.query(`
             INSERT INTO "posts"
-                ("userId",text,url)
+                ("userId",text,url,description,image,title)
                 VALUES
-                ($1,$2,$3);
+                ($1,$2,$3,$4,$5,$6);
     
-    `,[id,text,url]);
+    `,[id,text,url,description,image,title]);
     res.sendStatus(201);
     } catch (error) {
         console.log(error);
@@ -52,15 +58,22 @@ const postLink=async(req,res)=>{
 
 };
 
-async function getMetadata (){
-    const urlMetadatas= urlMetadata;
-     await urlMetadatas('https://bootcampra.notion.site/Ter-a-13-09-Trabalhando-com-Branches-2b83967706ad4cd7a17917d96532bbad')
-     .then(
-    function (metadata) { // success handler
-        return metadata;
-    },
-    function (error) { // failure handler
-    console.log(error)
-  })
-}
-export{postLink}
+
+const getLinks = async (req,res)=>{
+    
+    let urls;
+    try {
+        urls = (await connection.query(`
+            SELECT * 
+            FROM posts 
+            ORDER BY "createAt" 
+            DESC LIMIT 20;
+        `)).rows      
+    } catch (error) {
+        console.log(error)
+    }
+    res.send(urls)
+
+};
+
+export {postLink,getLinks}
