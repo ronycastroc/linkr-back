@@ -96,4 +96,19 @@ const erasePost = async (req, res) => {
   }
 };
 
-export { postLink, getLinks, erasePost };
+const editPost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    await postRepository.updatePost(postId);
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+export { postLink, getLinks, erasePost, editPost };
