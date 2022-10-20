@@ -64,10 +64,10 @@ const getLinks = async (req,res)=>{
     let urls;
     try {
         urls = (await connection.query(`
-            SELECT * 
-            FROM posts 
-            ORDER BY "createAt" 
-            DESC LIMIT 20;
+        SELECT posts.*,users."urlImage",users.name
+        FROM posts
+        JOIN users ON users.id=posts."userId"
+        ORDER BY "createAt" DESC LIMIT 20;
         `)).rows      
     } catch (error) {
         console.log(error)
