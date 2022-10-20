@@ -1,8 +1,8 @@
 import express from "express";
-import { getHashtagTranding } from "../controllers/hashtagsControllers.js";
+import { getHashtagTrending } from "../controllers/hashtagsControllers.js";
 
 const router = express.Router();
-router.get("/teste", getHashtagTranding);
+router.get("/trending", getHashtagTrending);
 
 
 export default router;
