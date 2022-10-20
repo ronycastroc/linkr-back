@@ -1,10 +1,12 @@
 import pg from "pg";
-import { DATABASE_URL } from "../configs/constants..js";
+import dotenv from "dotenv"
+
+dotenv.config();
 
 const { Pool } = pg;
 
 const connection = new Pool ({
-    connectionString: DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     }
