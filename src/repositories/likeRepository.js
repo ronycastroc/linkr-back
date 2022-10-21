@@ -15,13 +15,16 @@ const deleteLike = async (postId) => {
 
 const listLikes = async (postId) => {
   return await connection.query(
-    `SELECT COUNT(likes.id) AS "likeCount", users.name AS name FROM likes JOIN users ON likes."userId" = users.id JOIN posts ON likes."postId" = $1;`,
+    `SELECT 
+    COUNT(likes.id) AS "likeCount", 
+    users.name AS name 
+    FROM likes 
+    JOIN users ON likes."userId" = users.id 
+    JOIN posts ON likes."postId" = posts.id
+    WHERE users.id = $1
+    GROUP BY users.name;`,
     [postId]
   );
 };
 
-const getPost = async (postId) => {
-  return await connection.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
-};
-
-export { insertLike, deleteLike, listLikes, getPost };
+export { insertLike, deleteLike, listLikes };
