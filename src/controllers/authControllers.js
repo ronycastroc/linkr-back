@@ -48,6 +48,7 @@ const signIn = async (req, res) => {
             name: user[0].name,
             email: user[0].email,
             urlImage: user[0].urlImage,
+            userId:user[0].id,
             token 
         });  
 
