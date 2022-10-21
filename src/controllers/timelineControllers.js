@@ -37,7 +37,8 @@ const getLinks = async (req,res)=>{
     } catch (error) {
         res.status(500).send(error.message);
     }
-    
+}
+
 const erasePost = async (req, res) => {
   const { postId } = req.params;
   try {
