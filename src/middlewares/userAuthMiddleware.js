@@ -23,7 +23,7 @@ const validateLoggedUser = async (req, res, next) => {
   if (user.rowCount === 0) {
     return res.sendStatus(401);
   }
-
+  res.locals.urlImage = user.rows[0].urlImage
   res.locals.userId = userId;
   next();
 };
