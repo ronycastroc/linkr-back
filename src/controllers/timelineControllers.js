@@ -1,6 +1,8 @@
 import { connection } from "../database/db.js";
 import urlMetadata from "url-metadata";
 import * as timelineRepository from "../repositories/timelineRepository.js"
+import * as postRepository from "../repositories/postRepository.js";
+import * as likeRepository from "../repositories/likeRepository.js";
 
 const postLink=async(req,res)=>{
     const {url,id}=req.body;
@@ -27,7 +29,6 @@ const postLink=async(req,res)=>{
     }
 };
 
-
 const getLinks = async (req,res)=>{
     
     try {
@@ -37,7 +38,34 @@ const getLinks = async (req,res)=>{
         res.status(500).send(error.message);
     }
     
-
+const erasePost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    await likeRepository.deleteLike(postId);
+    await postRepository.deletePost(postId);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 };
 
-export {postLink,getLinks}
+const editPost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    await postRepository.updatePost(postId);
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+export { postLink, getLinks, erasePost, editPost };
