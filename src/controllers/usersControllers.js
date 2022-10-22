@@ -15,4 +15,21 @@ const getUsers = async (req, res) => {
     }
 }
 
-export {getUsers}
+
+const userMe = async (req, res) => {
+    
+    const { id }  = req.params
+
+    try {
+        const posts = await connection.query(`SELECT posts.*, users.name, users."urlImage" FROM posts
+        JOIN users
+        ON posts."userId" = users.id WHERE "userId" = $1;`, [id])
+        return res.status(200).send(posts.rows)
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(500)
+    }
+}
+
+
+export {getUsers, userMe}
