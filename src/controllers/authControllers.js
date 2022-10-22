@@ -33,8 +33,31 @@ const signIn = async (req, res) => {
   try {
     const user = await authRepository.listUser(email);
 
+<<<<<<< HEAD
     if (user.length === 0 || !bcrypt.compareSync(password, user[0].password)) {
       return res.sendStatus(401);
+=======
+        if(user.length === 0 || !bcrypt.compareSync(password, user[0].password)) {
+            return res.sendStatus(401);
+        }
+
+        const token = jwt.sign({ user: user[0].id }, TOKEN_SECRET);
+
+        await authRepository.deleteSession(user);
+
+        await authRepository.insertSession(user, token);    
+
+        res.status(200).send({ 
+            name: user[0].name,
+            email: user[0].email,
+            urlImage: user[0].urlImage,
+            userId:user[0].id,
+            token 
+        });  
+
+    } catch (error) {
+        res.status(500).send(error.message);
+>>>>>>> main
     }
 
     const token = jwt.sign({ user: user[0].id }, TOKEN_SECRET);
