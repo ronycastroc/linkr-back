@@ -21,10 +21,17 @@ const listLikes = async (postId) => {
     FROM likes 
     JOIN users ON likes."userId" = users.id 
     JOIN posts ON likes."postId" = posts.id
-    WHERE users.id = $1
+    WHERE posts.id = $1
     GROUP BY users.name;`,
     [postId]
   );
 };
 
-export { insertLike, deleteLike, listLikes };
+const countLikes = async (postId) => {
+  return await connection.query(
+    `SELECT COUNT(id) FROM likes WHERE likes."postId" = $1;`,
+    [postId]
+  );
+};
+
+export { insertLike, deleteLike, listLikes, countLikes };
