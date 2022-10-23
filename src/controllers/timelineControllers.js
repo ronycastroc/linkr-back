@@ -101,10 +101,14 @@ const getLinks = async (req, res) => {
 
 const erasePost = async (req, res) => {
   const { postId } = req.params;
+  const userId = res.loclas.userId;
   try {
     const existingPost = await postRepository.getPost(postId);
     if (existingPost.rowCount === 0) {
       return res.sendStatus(404);
+    }
+    if (existingPost.rows[0].userId !== userId) {
+      return res.sendStatus(401);
     }
     await likeRepository.deleteLike(postId);
     await postRepository.deletePost(postId);

@@ -30,4 +30,32 @@ const unlikePost = async (req, res) => {
   }
 };
 
-export { likePost, unlikePost };
+const countLikes = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    const likes = (await likeRepository.countLikes(postId)).rows[0].count;
+    res.status(200).send(likes);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+const listLikes = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    const likes = (await likeRepository.listLikes(postId)).rows[0];
+    res.status(200).send(likes);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+export { likePost, unlikePost, countLikes, listLikes };
