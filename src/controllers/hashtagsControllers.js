@@ -1,14 +1,25 @@
-import { connection } from "../database/db.js";
+import * as hashtagRepository from "../repositories/hashtagRepository.js";
+
+const likePost = async (req, res) => {
+  const { postId } = req.params;
+  const userId = res.locals.userId;
+  try {
+    const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    await likeRepository.insertLike(userId, postId);
+    res.sendStatus(201);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 
 async function getHashtagTrending(req, res) {
      
   try {
-     const trending = (
-      await connection.query(
-        `SELECT text, COUNT(text) FROM "postHashtags" JOIN hashtags ON "postHashtags"."hashtagId" = hashtags.id GROUP BY text ORDER BY COUNT desc;`
-      )
-    ).rows;
-  
+     const trending = await hashtagRepository.getTrending();  
     return res.status(200).send(trending);
 
   } catch (error) {
@@ -21,13 +32,13 @@ async function getHashtagPosts(req, res){
   const { hashtag } = req.params;
   
   try {
-    const findHashtag =  (await connection.query(`SELECT text FROM hashtags WHERE text= $1;`,[hashtag])).rowCount;
+    const findHashtag = await hashtagRepository.findHashtagInText(hashtag);
     
     if( findHashtag < 1){
       return res.sendStatus(404); 
     }
 
-    const listPosts = (await connection.query(`SELECT users.name, users."urlImage", posts.text, posts.url, hashtags.text AS hashtag FROM posts JOIN "postHashtags" ON posts."id"="postHashtags"."postId" JOIN users ON posts."userId" =users.id JOIN hashtags ON "postHashtags"."hashtagId" = hashtags.id WHERE hashtags.text = $1;`,[hashtag])).rows;
+    const listPosts = await hashtagRepository.getHashtagPosts(hashtag);
    
     return res.status(200).send(listPosts);
   

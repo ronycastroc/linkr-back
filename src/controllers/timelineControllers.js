@@ -2,8 +2,7 @@ import urlMetadata from "url-metadata";
 import * as timelineRepository from "../repositories/timelineRepository.js";
 import * as postRepository from "../repositories/postRepository.js";
 import * as likeRepository from "../repositories/likeRepository.js";
-import { connection } from "../database/db.js";
-
+import * as hashtagRepository from "../repositories/hashtagRepository.js";
 
 //função que procura por # no text
 async function findHashtags(searchText) {
@@ -22,15 +21,15 @@ async function findHashtags(searchText) {
   }
 }
 
-//função para procurar a hashtag na tabele de hashtags
+//função para procurar a hashtag na tabela de hashtags
 async function searchAndInsertHashtags(hashtag){
-  
-  const result = (await connection.query(`SELECT id FROM hashtags WHERE text = $1;`,[hashtag])).rows
+  const result = await hashtagRepository.getResult(hashtag);
   let hashtagId;
   if( result.length === 0 ){
-    const inserted = (await connection.query(`INSERT INTO hashtags (text) VALUES ($1);`,[hashtag])).rowCount
+    const inserted = await hashtagRepository.insertHashtag(hashtag);
     if(inserted === 1){
-      hashtagId = (await connection.query(`SELECT id FROM hashtags WHERE text = $1;`,[hashtag])).rows[0].id;
+     hashtagId = await hashtagRepository.getHashtagId(hashtag);
+  
    }
   }else{
     hashtagId = result[0].id    
@@ -39,7 +38,7 @@ async function searchAndInsertHashtags(hashtag){
 }
 
 async function insertIds(postId, hashtagId){
-  await connection.query(`INSERT INTO "postHashtags" ("postId", "hashtagId") VALUES ($1, $2);`,[postId, hashtagId])
+  hashtagRepository.insertPostHashtagsId(postId,hashtagId)
 }
 
 const postLink = async (req, res) => {
@@ -53,7 +52,7 @@ const postLink = async (req, res) => {
   if (!text) {
     text = null;
   }
-  //insersão Kássia funcão para procuras as # dentro do text do post
+  //insersão Kássia funcão para procurar as # dentro do text do post
   hashtagId = await findHashtags(req.body);
 
   try {
@@ -73,9 +72,10 @@ const postLink = async (req, res) => {
       image,
       title
     );
+    
     //insersão Kássia query para pegar o id do post
     if(instetPost.rowCount === 1 ){
-      let result = (await connection.query(`SELECT MAX(id) FROM posts;`)).rows;
+      let result = await hashtagRepository.getPostId();
       postId = result[0].max;
     }
     
