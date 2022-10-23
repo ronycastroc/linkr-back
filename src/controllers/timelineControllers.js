@@ -34,6 +34,7 @@ async function searchAndInsertHashtags(hashtag){
   }else{
     hashtagId = result[0].id    
   }
+  
   return hashtagId;
 }
 
@@ -42,13 +43,14 @@ async function insertIds(postId, hashtagId){
 }
 
 const postLink = async (req, res) => {
-  const { url, id  } = req.body;
+  const { url, id } = req.body;
   const urlMetadatas = urlMetadata;
   let metadatas;
   let description, image, title;
   let { text } = req.body;
   let postId;
   let hashtagId;
+  
   if (!text) {
     text = null;
   }
@@ -63,8 +65,9 @@ const postLink = async (req, res) => {
   description = metadatas.description;
   image = metadatas.image;
   title = metadatas.title;
+  
   try {
-    const instetPost = await timelineRepository.insertPost(
+    await timelineRepository.insertPost(
       id,
       text,
       url,
@@ -87,7 +90,6 @@ const postLink = async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message);
   }
-
 };
 
 const getLinks = async (req, res) => {
@@ -101,7 +103,7 @@ const getLinks = async (req, res) => {
 
 const erasePost = async (req, res) => {
   const { postId } = req.params;
-  const userId = res.loclas.userId;
+  const userId = res.locals.userId;
   try {
     const existingPost = await postRepository.getPost(postId);
     if (existingPost.rowCount === 0) {
