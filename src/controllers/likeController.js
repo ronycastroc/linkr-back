@@ -58,7 +58,7 @@ const listLikes = async (req, res) => {
     if (existingPost.rowCount === 0) {
       return res.sendStatus(404);
     }
-    const likes = (await likeRepository.listLikes(postId)).rows[0];
+    const likes = (await likeRepository.listLikes(postId)).rows;
     res.status(200).send(likes);
   } catch (error) {
     res.status(500).send(error.message);

@@ -18,12 +18,13 @@ const listLikes = async (postId) => {
   return await connection.query(
     `SELECT 
     COUNT(likes.id) AS "likeCount", 
-    users.name AS name 
+    users.name AS name,
+    likes."userId" AS userId 
     FROM likes 
     JOIN users ON likes."userId" = users.id 
     JOIN posts ON likes."postId" = posts.id
     WHERE posts.id = $1
-    GROUP BY users.name;`,
+    GROUP BY users.name, likes."userId";`,
     [postId]
   );
 };
