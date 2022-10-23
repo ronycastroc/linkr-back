@@ -3,7 +3,7 @@ import { connection } from "../database/db.js";
 async function getHashtagTrending(req, res) {
      
   try {
-    const trending = (
+     const trending = (
       await connection.query(
         `SELECT text, COUNT(text) FROM "postHashtags" JOIN hashtags ON "postHashtags"."hashtagId" = hashtags.id GROUP BY text ORDER BY COUNT desc;`
       )
@@ -19,8 +19,7 @@ async function getHashtagTrending(req, res) {
 
 async function getHashtagPosts(req, res){
   const { hashtag } = req.params;
-  console.log(hashtag)
- 
+  
   try {
     const findHashtag =  (await connection.query(`SELECT text FROM hashtags WHERE text= $1;`,[hashtag])).rowCount;
     
@@ -39,4 +38,4 @@ async function getHashtagPosts(req, res){
 
 }
 
-export { getHashtagTrending, getHashtagPosts };
+export { getHashtagTrending, getHashtagPosts  };
