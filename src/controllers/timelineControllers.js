@@ -67,7 +67,7 @@ const postLink = async (req, res) => {
   title = metadatas.title;
   
   try {
-    await timelineRepository.insertPost(
+    const insertedPost = await timelineRepository.insertPost(
       id,
       text,
       url,
@@ -77,9 +77,10 @@ const postLink = async (req, res) => {
     );
     
     //insersão Kássia query para pegar o id do post
-    if(instetPost.rowCount === 1 ){
+    if(insertedPost.rowCount === 1 ){
       let result = await hashtagRepository.getPostId();
       postId = result[0].max;
+      console.log("entrou")
     }
     
     //insere na tabela postHashtags
