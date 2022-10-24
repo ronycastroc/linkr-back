@@ -123,12 +123,17 @@ const erasePost = async (req, res) => {
 
 const editPost = async (req, res) => {
   const { postId } = req.params;
+  const { newText } = req.body;
+  const userId = res.locals.userId;
   try {
     const existingPost = await postRepository.getPost(postId);
     if (existingPost.rowCount === 0) {
       return res.sendStatus(404);
     }
-    await postRepository.updatePost(postId);
+    if (existingPost.rows[0].userId !== userId) {
+      return res.sendStatus(401);
+    }
+    await postRepository.updatePost(newText, postId);
 
     res.sendStatus(200);
   } catch (error) {
