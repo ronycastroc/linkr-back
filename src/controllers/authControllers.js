@@ -22,6 +22,7 @@ const signUp = async (req, res) => {
     await authRepository.insertUser(name, email, passwordHash, urlImage);
 
     res.sendStatus(201);
+    
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -50,6 +51,7 @@ const signIn = async (req, res) => {
       userId: user[0].id,
       token,
     });
+    
   } catch (error) {
     res.status(500).send(error.message);
   }
