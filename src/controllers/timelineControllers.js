@@ -67,7 +67,7 @@ const postLink = async (req, res) => {
   title = metadatas.title;
   
   try {
-    await timelineRepository.insertPost(
+    const insertedPost = await timelineRepository.insertPost(
       id,
       text,
       url,
@@ -77,9 +77,10 @@ const postLink = async (req, res) => {
     );
     
     //insersão Kássia query para pegar o id do post
-    if(instetPost.rowCount === 1 ){
+    if(insertedPost.rowCount === 1 ){
       let result = await hashtagRepository.getPostId();
       postId = result[0].max;
+      console.log("entrou")
     }
     
     //insere na tabela postHashtags
@@ -92,16 +93,15 @@ const postLink = async (req, res) => {
   }
 };
 
-const getLinks = async (req,res)=>{
-    
-    try {
-        const urls = await timelineRepository.listPosts()
-        res.send(urls)
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-}
-    
+const getLinks = async (req, res) => {
+  try {
+    const urls = await timelineRepository.listPosts();
+    res.send(urls);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 const erasePost = async (req, res) => {
   const { postId } = req.params;
   const userId = res.locals.userId;
@@ -123,12 +123,17 @@ const erasePost = async (req, res) => {
 
 const editPost = async (req, res) => {
   const { postId } = req.params;
+  const { newText } = req.body;
+  const userId = res.locals.userId;
   try {
     const existingPost = await postRepository.getPost(postId);
     if (existingPost.rowCount === 0) {
       return res.sendStatus(404);
     }
-    await postRepository.updatePost(postId);
+    if (existingPost.rows[0].userId !== userId) {
+      return res.sendStatus(401);
+    }
+    await postRepository.updatePost(newText, postId);
 
     res.sendStatus(200);
   } catch (error) {

@@ -3,14 +3,22 @@ import {
   postLink,
   getLinks,
   erasePost,
+  editPost,
 } from "../controllers/timelineControllers.js";
-import {validateLoggedUser} from "../middlewares/userAuthMiddleware.js"
-import {postLinkMiddleware} from "../middlewares/timelineMiddleware.js"
-import { getHashtagTrending } from "../controllers/hashtagsControllers.js" 
+import { validateLoggedUser } from "../middlewares/userAuthMiddleware.js";
+import { postLinkMiddleware } from "../middlewares/timelineMiddleware.js";
+import { getHashtagTrending } from "../controllers/hashtagsControllers.js";
 const router = express.Router();
 
-router.post("/timeline",validateLoggedUser, postLinkMiddleware,postLink, getHashtagTrending);
-router.get("/timeline",validateLoggedUser, getLinks);
+router.post(
+  "/timeline",
+  validateLoggedUser,
+  postLinkMiddleware,
+  postLink,
+  getHashtagTrending
+);
+router.get("/timeline", validateLoggedUser, getLinks);
 router.delete("/timeline/:postId", validateLoggedUser, erasePost);
+router.put("/timeline/:postId", validateLoggedUser, editPost);
 
 export default router;
