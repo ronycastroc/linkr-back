@@ -4,11 +4,27 @@ const getUsers = async (req, res) => {
     
     const { filter }  = req.query
 
+    const { userId } = req.query
+    
     try {
 
-        const users = await connection.query(`SELECT id, name, "urlImage" FROM users WHERE name ~* $1;`, [filter])
+        const {rows: followed} = await connection.query(`SELECT follower.id AS id, follower.name, follower."urlImage" FROM users
+        JOIN follows
+        ON users.id = follows."followerId"
+        JOIN users AS "follower"
+        ON follower.id = follows."followedId" WHERE follower.name ~* $1 AND users.id = $2;`, [filter, userId])
         
-        return res.status(200).send(users.rows)
+        const {rows: users} = await connection.query(`SELECT id, name, "urlImage" FROM users WHERE name ~* $1;`, [filter])
+
+        followed.map((val) => {
+            users.map((val2) => {
+                if(val.name.includes(val2.name)){
+                    users.splice(val2, 1)
+                }
+            })
+        })
+
+        return res.status(200).send({followed, users})
     } catch (error) {
         console.log(error)
        return res.sendStatus(500)
