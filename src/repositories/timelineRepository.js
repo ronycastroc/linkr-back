@@ -10,13 +10,17 @@ const insertPost = async (id,text,url,description,image,title)=>{
 `,[id,text,url,description,image,title]);
 };
 
-const listPosts = async ()=>{
+const listPosts = async (offset)=>{
     return (await connection.query(`
     SELECT posts.*,users."urlImage",users.name
     FROM posts
     JOIN users ON users.id=posts."userId"
-    ORDER BY "createAt" DESC LIMIT 20;
-    `)).rows 
+    ORDER BY "createAt" DESC LIMIT 5 OFFSET $1;
+    `,[offset])).rows 
 }
-
-export {insertPost,listPosts}
+const getLength = async ()=>{
+    return (await connection.query(`
+    SELECT COUNT(posts.id) FROM posts;
+    `)).rows
+}
+export {insertPost,listPosts,getLength}

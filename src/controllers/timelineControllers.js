@@ -94,13 +94,19 @@ const postLink = async (req, res) => {
 };
 
 const getLinks = async (req, res) => {
+  const {offset} = req.query
   try {
-    const urls = await timelineRepository.listPosts();
-    res.send(urls);
+    const urls = await timelineRepository.listPosts(offset);
+    const length = await timelineRepository.getLength();
+    res.send({urls,length});
+
+
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
+
+
 
 const erasePost = async (req, res) => {
   const { postId } = req.params;
@@ -141,4 +147,4 @@ const editPost = async (req, res) => {
   }
 };
 
-export { postLink, getLinks, erasePost, editPost };
+export { postLink, getLinks, erasePost, editPost  };

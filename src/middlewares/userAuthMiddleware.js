@@ -3,7 +3,7 @@ import { connection } from "../database/db.js";
 const validateLoggedUser = async (req, res, next) => {
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
-
+  //const {offset} = req.query;
   if (!token) {
     return res.sendStatus(401);
   }
@@ -25,6 +25,7 @@ const validateLoggedUser = async (req, res, next) => {
   }
   res.locals.urlImage = user.rows[0].urlImage
   res.locals.userId = userId;
+  //res.locals.offset = offset;
   next();
 };
 
