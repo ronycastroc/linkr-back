@@ -59,12 +59,13 @@ const postLink = async (req, res) => {
 
   try {
     metadatas = await urlMetadatas(url);
+    description = metadatas.description;
+    image = metadatas.image;
+    title = metadatas.title;
   } catch (error) {
     console.log(error);
   }
-  description = metadatas.description;
-  image = metadatas.image;
-  title = metadatas.title;
+  
   
   try {
     const insertedPost = await timelineRepository.insertPost(
@@ -96,11 +97,25 @@ const postLink = async (req, res) => {
 const getLinks = async (req, res) => {
   try {
     const urls = await timelineRepository.listPosts();
-    res.send(urls);
+    const length = await timelineRepository.getLength();
+    res.send({urls,length});
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
+
+const getUpdate = async (req,res)=>{
+  const {length} = req.query
+  try {
+    const num = await timelineRepository.getLength();
+    const newPublicationLength=num[0].count-length;
+    res.send({newPublicationLength:newPublicationLength})
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
+
 
 const erasePost = async (req, res) => {
   const { postId } = req.params;
@@ -141,4 +156,4 @@ const editPost = async (req, res) => {
   }
 };
 
-export { postLink, getLinks, erasePost, editPost };
+export { postLink, getLinks, erasePost, editPost,getUpdate };
