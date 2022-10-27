@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import likeRoutes from "./routes/likeRoutes.js";
 import timelineRoutes from "./routes/timelineRoutes.js";
 import routerusers from "./routes/usersRoutes.js";
+import commentsRoutes from "./routes/commentsRoutes.js"
 import followRoutes from "./routes/followRoutes.js";
 import repostRoutes from "./routes/repostRoutes.js";
 
@@ -20,6 +21,7 @@ app.use(authRoutes);
 app.use(likeRoutes);
 app.use(timelineRoutes);
 app.use(routerusers);
+app.use(commentsRoutes)
 app.use(followRoutes);
 app.use(repostRoutes);
 
