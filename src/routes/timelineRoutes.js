@@ -4,6 +4,7 @@ import {
   getLinks,
   erasePost,
   editPost,
+  test
 } from "../controllers/timelineControllers.js";
 import { validateLoggedUser } from "../middlewares/userAuthMiddleware.js";
 import { postLinkMiddleware } from "../middlewares/timelineMiddleware.js";
@@ -20,5 +21,5 @@ router.post(
 router.get("/timeline", validateLoggedUser, getLinks);
 router.delete("/timeline/:postId", validateLoggedUser, erasePost);
 router.put("/timeline/:postId", validateLoggedUser, editPost);
-
+router.get("/test",test)
 export default router;

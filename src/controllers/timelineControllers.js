@@ -55,16 +55,23 @@ const postLink = async (req, res) => {
     text = null;
   }
   //insersão Kássia funcão para procurar as # dentro do text do post
-  hashtagId = await findHashtags(req.body);
-
   try {
-    metadatas = await urlMetadatas(url);
+    hashtagId = await findHashtags(req.body);
+    console.log(hashtagId)
   } catch (error) {
     console.log(error);
   }
-  description = metadatas.description;
-  image = metadatas.image;
-  title = metadatas.title;
+  
+
+  try {
+    metadatas = await urlMetadatas(url);
+    description = metadatas.description;
+    image = metadatas.image;
+    title = metadatas.title;
+  } catch (error) {
+    console.log(error);
+  }
+ 
   
   try {
     const insertedPost = await timelineRepository.insertPost(
@@ -80,7 +87,6 @@ const postLink = async (req, res) => {
     if(insertedPost.rowCount === 1 ){
       let result = await hashtagRepository.getPostId();
       postId = result[0].max;
-      console.log("entrou")
     }
     
     //insere na tabela postHashtags
@@ -106,6 +112,16 @@ const getLinks = async (req, res) => {
   }
 };
 
+const test= async (req,res)=>{
+  try {
+    const num = await timelineRepository.getLength();
+    res.send(num)
+  } catch (error) {
+    res.status(500).send(error.message);
+
+  }
+
+}
 
 
 const erasePost = async (req, res) => {
@@ -147,4 +163,4 @@ const editPost = async (req, res) => {
   }
 };
 
-export { postLink, getLinks, erasePost, editPost  };
+export { postLink, getLinks, erasePost, editPost,test };
