@@ -40,4 +40,10 @@ const getReposts = async () => {
   ).rows;
 };
 
-export { insertRepost, countReposts, listReposts, getReposts };
+const deleteRepost = async (postId) => {
+  return await connection.query(`DELETE FROM reposts WHERE "postId" = $1;`, [
+    postId,
+  ]);
+};
+
+export { insertRepost, countReposts, listReposts, getReposts, deleteRepost };
