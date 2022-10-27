@@ -9,6 +9,7 @@ import likeRoutes from "./routes/likeRoutes.js";
 import timelineRoutes from "./routes/timelineRoutes.js";
 import routerusers from "./routes/usersRoutes.js";
 import followRoutes from "./routes/followRoutes.js";
+import repostRoutes from "./routes/repostRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -20,9 +21,10 @@ app.use(likeRoutes);
 app.use(timelineRoutes);
 app.use(routerusers);
 app.use(followRoutes);
+app.use(repostRoutes);
 
 app.get("/status", (req, res) => {
-    return res.send("Ok");
+  return res.send("Ok");
 });
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
