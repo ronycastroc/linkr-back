@@ -80,8 +80,7 @@ const postLink = async (req, res) => {
     if(insertedPost.rowCount === 1 ){
       let result = await hashtagRepository.getPostId();
       postId = result[0].max;
-      console.log("entrou")
-    }
+     }
     
     //insere na tabela postHashtags
     insertIds(postId, hashtagId)
