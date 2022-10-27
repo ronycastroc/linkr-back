@@ -1,9 +1,9 @@
 import { connection } from "../database/db.js";
 
-const insertRepost = async (userId, postId) => {
+const insertRepost = async (userId, postId, name) => {
   return await connection.query(
-    `INSERT INTO reposts ("userId", "postId") VALUES ($1, $2);`,
-    [userId, postId]
+    `INSERT INTO reposts ("userId", "postId", "reposterName") VALUES ($1, $2, $3);`,
+    [userId, postId, name]
   );
 };
 
@@ -28,5 +28,16 @@ const listReposts = async (postId) => {
     [postId]
   );
 };
+const getReposts = async () => {
+  return (
+    await connection.query(`
+    SELECT posts.*,users."urlImage",users.name,reposts."userId" as "reposterId", reposts."reposterName"
+    FROM posts
+    JOIN users ON users.id=posts."userId"
+    JOIN reposts ON posts.id=reposts."postId"
+    ORDER BY "createAt" DESC LIMIT 20;
+  `)
+  ).rows;
+};
 
-export { insertRepost, countReposts, listReposts };
+export { insertRepost, countReposts, listReposts, getReposts };

@@ -4,6 +4,7 @@ import * as postRepository from "../repositories/postRepository.js";
 const repostPost = async (req, res) => {
   const { postId } = req.params;
   const userId = res.locals.userId;
+  const name = res.locals.name;
   try {
     const existingPost = await postRepository.getPost(postId);
     if (existingPost.rowCount === 0) {
@@ -15,7 +16,7 @@ const repostPost = async (req, res) => {
         console.log(existingUserLike);
         return res.sendStatus(200);
       } */
-    await repostRepository.insertRepost(userId, postId);
+    await repostRepository.insertRepost(userId, postId, name);
     res.sendStatus(201);
   } catch (error) {
     res.status(500).send(error.message);
@@ -50,4 +51,19 @@ const listReposts = async (req, res) => {
   }
 };
 
-export { repostPost, countReposts, listReposts };
+const getReposts = async (req, res) => {
+  try {
+    /*  const existingPost = await postRepository.getPost(postId);
+    if (existingPost.rowCount === 0) {
+      return res.sendStatus(404);
+    } */
+    const reposts = await repostRepository.getReposts();
+
+    //const originalPost = (await postRepository.getPost(reposts[0].postId)).rows;
+    res.status(200).send(reposts);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+export { repostPost, countReposts, listReposts, getReposts };
