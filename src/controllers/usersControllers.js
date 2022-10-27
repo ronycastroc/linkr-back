@@ -16,13 +16,16 @@ const getUsers = async (req, res) => {
         
         const {rows: users} = await connection.query(`SELECT id, name, "urlImage" FROM users WHERE name ~* $1;`, [filter])
 
-        followed.map((val) => {
-            users.map((val2) => {
-                if(val.name.includes(val2.name)){
-                    users.splice(val2, 1)
+        followed.map((val ) => {
+            users.map((val2, index) => {
+                if(val2.id === val.id){
+                    users.splice(index, 1)
                 }
             })
         })
+
+        console.log(followed)
+        console.log(users)
 
         return res.status(200).send({followed, users})
     } catch (error) {
