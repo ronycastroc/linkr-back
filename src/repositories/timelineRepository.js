@@ -18,5 +18,10 @@ const listPosts = async ()=>{
     ORDER BY "createAt" DESC LIMIT 20;
     `)).rows 
 }
+const getLength = async ()=>{
+    return (await connection.query(`
+    SELECT COUNT(posts.id) FROM posts;
+    `)).rows
+}
 
-export {insertPost,listPosts}
+export {insertPost,listPosts,getLength}
