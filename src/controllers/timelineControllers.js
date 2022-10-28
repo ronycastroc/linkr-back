@@ -57,19 +57,19 @@ const postLink = async (req, res) => {
     text = null;
   }
   //insersão Kássia funcão para procurar as # dentro do text do post
-  hashtagId = await findHashtags(req.body);
-
+  
   try {
     metadatas = await urlMetadatas(url);
     description = metadatas.description;
     image = metadatas.image;
     title = metadatas.title;
   } catch (error) {
-    console.log(error);
+    console.log(error,"Não foi possivel obter metadados");
   }
   
 
   try {
+    hashtagId = await findHashtags(req.body);
     const insertedPost = await timelineRepository.insertPost(
       id,
       text,
@@ -80,13 +80,14 @@ const postLink = async (req, res) => {
     );
 
     //insersão Kássia query para pegar o id do post
-    if (insertedPost.rowCount === 1) {
+    if (insertedPost.rowCount === 1 && hashtagId) {
       let result = await hashtagRepository.getPostId();
       postId = result[0].max;
+      insertIds(postId, hashtagId);
      }
     
     //insere na tabela postHashtags
-    insertIds(postId, hashtagId);
+    
 
     res.sendStatus(201);
   } catch (error) {
