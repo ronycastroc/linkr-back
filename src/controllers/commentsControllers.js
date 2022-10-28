@@ -1,21 +1,27 @@
-import { connection } from "../database/db.js";
+import * as commentsRepository from "../repositories/commentsRepository.js"
 
 
 async function listComments (req, res){
 const { postId } = req.params;
-let isFollower = true;
 
 try {
-    const post = (await connection.query(`SELECT * FROM posts WHERE id= $1;`,[postId])).rows
-    const postOwner = post[0].userId;
-    if(post.length === 0){
+    const findPost = await commentsRepository.getPost(postId);
+    
+    if(findPost.length === 0){
         return res.status(404).send('Post não encontrado');
     }
     
-    const listPosts = (await connection.query(`SELECT comments.*, users.name, users."urlImage" FROM comments JOIN users on comments."userId"=users.id WHERE comments."postId" = $1 ORDER BY comments."createAt" ;`,[postId])).rows;
+    const listComments = await commentsRepository.getComments(postId);
     
-    const result = {listPosts, isFollower}
-    return res.status(200).send(listPosts)
+    let result = [];
+  
+    for(let i=0; i<listComments.length; i++){
+        let followStatus= await isFollower(listComments[i].userId,listComments[i].postOwnerId)
+        let withFollowStatus = {...listComments[i],followStatus}
+         result.push(withFollowStatus)
+    }
+
+    return res.status(200).send(result)
 } catch (error) {
     console.log(error);
     return res.sendStatus(500);
@@ -25,13 +31,14 @@ try {
 
 
 async function insertComment(req, res){
-const {comment,}  = req.body;
+const {comment }  = req.body;
 const {postId} = req.params;
 
+
 try {
-    const insertComment = await connection.query(`INSERT INTO comments ("userId", "postId", comment) VALUES ($1, $2, $3);`,[res.locals.userId, postId, comment]);
+    const insertComment = await commentsRepository.postComment(res.locals.userId, postId, comment)
     
-    res.sendStatus(201);
+    res.sendStatus(201)
 } catch (error) {
     console.log(error);
     return res.sendStatus(500);
@@ -44,7 +51,7 @@ try {
     const { postId } = req.params;
 
     try {
-        const numberOfComments = (await connection.query(`SELECT COUNT(*) FROM comments WHERE "postId"=$1;`,[postId])).rows[0].count;
+        const numberOfComments = await commentsRepository.getNumberOfComments(postId);
         return res.send(numberOfComments)
     } catch (error) {
         console.log(error)
@@ -52,4 +59,26 @@ try {
     }
 
  }
-export { listComments, insertComment, countingComments }
+
+ async function isFollower(followerId, followedId){
+         
+    try {
+        if(followerId === followedId ){
+           return `• post’s author`;
+        }
+        const followStatus = await commentsRepository.getFollowStatus(followerId, followedId);
+       
+        if(followStatus.length === 0){
+        return "";
+       }
+       return "• following";
+       
+    } catch (error) {
+        console.log(error);
+        return "";
+        
+    }
+    
+
+ }
+export { listComments, insertComment, countingComments}

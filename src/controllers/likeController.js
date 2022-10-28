@@ -12,7 +12,7 @@ const likePost = async (req, res) => {
     const existingUserLike = await likeRepository.getUserLikes(postId, userId);
     if (existingUserLike.rowCount !== 0) {
       await likeRepository.deleteUserLike(postId, userId);
-      console.log(existingUserLike);
+      //console.log(existingUserLike);
       return res.sendStatus(200);
     }
     await likeRepository.insertLike(userId, postId);
