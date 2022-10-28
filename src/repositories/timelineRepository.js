@@ -10,13 +10,15 @@ const insertPost = async (id,text,url,description,image,title)=>{
 `,[id,text,url,description,image,title]);
 };
 
-const listPosts = async ()=>{
+const listPosts = async (id)=>{
     return (await connection.query(`
-    SELECT posts.*,users."urlImage",users.name
-    FROM posts
-    JOIN users ON users.id=posts."userId"
-    ORDER BY "createAt" DESC LIMIT 20;
-    `)).rows 
+    SELECT users.name, users."urlImage", posts.*, follows.id, follows."followerId" FROM posts
+    JOIN follows
+    ON posts."userId" = follows."followedId"
+    JOIN users
+    ON users.id = posts."userId"
+    WHERE follows."followerId" = $1
+    ;`, [id])).rows 
 }
 const getLength = async ()=>{
     return (await connection.query(`
