@@ -58,19 +58,19 @@ const postLink = async (req, res) => {
     text = null;
   }
   //insersão Kássia funcão para procurar as # dentro do text do post
-  hashtagId = await findHashtags(req.body);
-
+  
   try {
     metadatas = await urlMetadatas(url);
     description = metadatas.description;
     image = metadatas.image;
     title = metadatas.title;
   } catch (error) {
-    console.log(error);
+    console.log(error,"Não foi possivel obter metadados");
   }
   
 
   try {
+    hashtagId = await findHashtags(req.body);
     const insertedPost = await timelineRepository.insertPost(
       id,
       text,
@@ -81,13 +81,14 @@ const postLink = async (req, res) => {
     );
 
     //insersão Kássia query para pegar o id do post
-    if (insertedPost.rowCount === 1) {
+    if (insertedPost.rowCount === 1 && hashtagId) {
       let result = await hashtagRepository.getPostId();
       postId = result[0].max;
+      insertIds(postId, hashtagId);
      }
     
     //insere na tabela postHashtags
-    insertIds(postId, hashtagId);
+    
 
     res.sendStatus(201);
   } catch (error) {
@@ -97,11 +98,11 @@ const postLink = async (req, res) => {
 
 const getLinks = async (req, res) => {
 
-  const { id } = req.params
-
+  const { userId } = req.params;
+  const {offset}=req.query;
   try {
-    const urls = await timelineRepository.listPosts(id);
-    const length = await timelineRepository.getLength();
+    const urls = await timelineRepository.listPosts(userId,offset);
+    const length = await timelineRepository.getLength(userId);
     res.send({urls,length});
   } catch (error) {
     res.status(500).send(error.message);
@@ -109,9 +110,10 @@ const getLinks = async (req, res) => {
 };
 
 const getUpdate = async (req,res)=>{
+  const { userId } = req.params;
   const {length} = req.query
   try {
-    const num = await timelineRepository.getLength();
+    const num = await timelineRepository.getLength(userId);
     const newPublicationLength=num[0].count-length;
     res.send({newPublicationLength:newPublicationLength})
   } catch (error) {

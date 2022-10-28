@@ -20,10 +20,10 @@ router.post(
   getHashtagTrending
 );
 
-router.get("/timeline/:id", validateLoggedUser, getLinks);
+router.get("/timeline/:userId", validateLoggedUser, getLinks);
 router.delete("/timeline/:postId", validateLoggedUser, erasePost);
 router.put("/timeline/:postId", validateLoggedUser, editPost);
-router.get("/update",getUpdate)
+router.get("/update/:userId",getUpdate)
 router.get("/isfollowing/:id", getIsFollowing)
 
 export default router;

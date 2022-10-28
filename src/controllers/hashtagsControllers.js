@@ -30,7 +30,7 @@ async function getHashtagTrending(req, res) {
 
 async function getHashtagPosts(req, res){
   const { hashtag } = req.params;
-  
+  const {offset}=req.query;
   try {
     const findHashtag = await hashtagRepository.findHashtagInText(hashtag);
     
@@ -38,9 +38,9 @@ async function getHashtagPosts(req, res){
       return res.sendStatus(404); 
     }
 
-    const listPosts = await hashtagRepository.getHashtagPosts(hashtag);
-   
-    return res.status(200).send(listPosts);
+    const listPosts = await hashtagRepository.getHashtagPosts(hashtag,offset);
+    const length=await hashtagRepository.getHashtagPostsLength(hashtag);
+    return res.status(200).send({length,listPosts});
   
   } catch (error) {
     console.log(error);

@@ -29,8 +29,28 @@ const findHashtagInText = async (hashtag) => {
   return (await connection.query(`SELECT text FROM hashtags WHERE text= $1;`,[hashtag])).rowCount;
 };
 
-const getHashtagPosts = async (hashtag) => {
-  return (await connection.query(`SELECT users.name, users."urlImage", posts.text, posts.url, hashtags.text AS hashtag FROM posts JOIN "postHashtags" ON posts."id"="postHashtags"."postId" JOIN users ON posts."userId" =users.id JOIN hashtags ON "postHashtags"."hashtagId" = hashtags.id WHERE hashtags.text = $1;`,[hashtag])).rows;
+const getHashtagPosts = async (hashtag,offset) => {
+  return (await connection.query(`
+  SELECT 
+  users.name, users."urlImage", 
+  posts.*, hashtags.text AS hashtag 
+  FROM posts 
+  JOIN "postHashtags" ON posts."id"="postHashtags"."postId" 
+  JOIN users ON posts."userId" =users.id JOIN hashtags 
+  ON "postHashtags"."hashtagId" = hashtags.id 
+  WHERE hashtags.text =$1
+  ORDER BY "createAt" 
+  DESC LIMIT 10 
+  OFFSET $2;
+  ;`,[hashtag,offset])).rows;
 }; 
+const getHashtagPostsLength =async (hashtag)=>{
+  return (await connection.query(`
+  SELECT COUNT("postHashtags".id) 
+	FROM "postHashtags"
+ 	JOIN hashtags ON "postHashtags"."hashtagId" = hashtags.id  
+  WHERE hashtags.text=$1
+    `,[hashtag])).rows
 
-  export { getHashtagId, insertHashtag, getResult, insertPostHashtagsId, getPostId, getTrending, findHashtagInText, getHashtagPosts }
+}
+  export { getHashtagPostsLength,getHashtagId, insertHashtag, getResult, insertPostHashtagsId, getPostId, getTrending, findHashtagInText, getHashtagPosts }
