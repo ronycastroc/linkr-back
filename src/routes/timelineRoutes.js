@@ -4,6 +4,8 @@ import {
   getLinks,
   erasePost,
   editPost,
+  getUpdate,
+  getIsFollowing
 } from "../controllers/timelineControllers.js";
 import { validateLoggedUser } from "../middlewares/userAuthMiddleware.js";
 import { postLinkMiddleware } from "../middlewares/timelineMiddleware.js";
@@ -17,8 +19,11 @@ router.post(
   postLink,
   getHashtagTrending
 );
-router.get("/timeline", validateLoggedUser, getLinks);
+
+router.get("/timeline/:id", validateLoggedUser, getLinks);
 router.delete("/timeline/:postId", validateLoggedUser, erasePost);
 router.put("/timeline/:postId", validateLoggedUser, editPost);
+router.get("/update",getUpdate)
+router.get("/isfollowing/:id", getIsFollowing)
 
 export default router;

@@ -4,6 +4,7 @@ import * as postRepository from "../repositories/postRepository.js";
 import * as likeRepository from "../repositories/likeRepository.js";
 import * as hashtagRepository from "../repositories/hashtagRepository.js";
 import * as repostRepository from "../repositories/repostRepository.js";
+import { connection } from "../database/db.js";
 
 //função que procura por # no text
 async function findHashtags(searchText) {
@@ -61,12 +62,13 @@ const postLink = async (req, res) => {
 
   try {
     metadatas = await urlMetadatas(url);
+    description = metadatas.description;
+    image = metadatas.image;
+    title = metadatas.title;
   } catch (error) {
     console.log(error);
   }
-  description = metadatas.description;
-  image = metadatas.image;
-  title = metadatas.title;
+  
 
   try {
     const insertedPost = await timelineRepository.insertPost(
@@ -94,13 +96,30 @@ const postLink = async (req, res) => {
 };
 
 const getLinks = async (req, res) => {
+
+  const { id } = req.params
+
   try {
-    const urls = await timelineRepository.listPosts();
-    res.send(urls);
+    const urls = await timelineRepository.listPosts(id);
+    const length = await timelineRepository.getLength();
+    res.send({urls,length});
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
+
+const getUpdate = async (req,res)=>{
+  const {length} = req.query
+  try {
+    const num = await timelineRepository.getLength();
+    const newPublicationLength=num[0].count-length;
+    res.send({newPublicationLength:newPublicationLength})
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
+
 
 const erasePost = async (req, res) => {
   const { postId } = req.params;
@@ -142,4 +161,19 @@ const editPost = async (req, res) => {
   }
 };
 
-export { postLink, getLinks, erasePost, editPost };
+const getIsFollowing = async (req, res) => {
+  const { id } = req.params
+  try {
+    const resp = await connection.query(`SELECT * FROM follows
+    JOIN users
+    ON follows."followerId" = users.id
+    WHERE follows."followerId" = $1
+    ;`, [id])
+
+    res.status(200).send(resp.rows)
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+}
+
+export { postLink, getLinks, erasePost, editPost, getUpdate, getIsFollowing };
