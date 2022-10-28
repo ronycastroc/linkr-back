@@ -98,11 +98,11 @@ const postLink = async (req, res) => {
 
 const getLinks = async (req, res) => {
 
-  const { id } = req.params
-
+  const { userId } = req.params;
+  const {offset}=req.query;
   try {
-    const urls = await timelineRepository.listPosts(id);
-    const length = await timelineRepository.getLength();
+    const urls = await timelineRepository.listPosts(userId,offset);
+    const length = await timelineRepository.getLength(userId);
     res.send({urls,length});
   } catch (error) {
     res.status(500).send(error.message);
@@ -110,9 +110,10 @@ const getLinks = async (req, res) => {
 };
 
 const getUpdate = async (req,res)=>{
+  const { userId } = req.params;
   const {length} = req.query
   try {
-    const num = await timelineRepository.getLength();
+    const num = await timelineRepository.getLength(userId);
     const newPublicationLength=num[0].count-length;
     res.send({newPublicationLength:newPublicationLength})
   } catch (error) {
