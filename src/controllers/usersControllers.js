@@ -35,18 +35,37 @@ const getUsers = async (req, res) => {
 }
 
 const userMe = async (req, res) => {
-    
+    const {offset} =req.query
     const { id }  = req.params
 
     try {
-        const posts = await connection.query(`SELECT posts.*, users.name, users."urlImage" FROM posts
+        const posts = (await connection.query(`
+        SELECT posts.*, users.name, users."urlImage" 
+        FROM posts
         JOIN users
-        ON posts."userId" = users.id WHERE "userId" = $1;`, [id])
-        return res.status(200).send(posts.rows)
+        ON posts."userId" = users.id 
+        WHERE "userId" = $1
+        ORDER BY "createAt" 
+        DESC LIMIT 10 
+        OFFSET $2;
+        
+        ;`, [id,offset])).rows
+        
+        const length= (await connection.query(`
+        SELECT COUNT(id) 
+        FROM posts WHERE 
+        "userId"=$1
+        
+        
+        `,[id])).rows
+        
+        return res.status(200).send({posts,length})
     } catch (error) {
         console.log(error)
         return res.sendStatus(500)
     }
 }
+
+
 
 export {getUsers, userMe}

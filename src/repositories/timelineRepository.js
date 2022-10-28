@@ -19,7 +19,7 @@ const listPosts = async (userId,offset)=>{
     ON users.id = posts."userId"
     WHERE follows."followerId" = $1
     ORDER BY "createAt" 
-    DESC LIMIT 5 
+    DESC LIMIT 10 
     OFFSET $2;
     ;`, [userId,offset])).rows
 }
