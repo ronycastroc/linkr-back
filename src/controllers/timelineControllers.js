@@ -4,6 +4,7 @@ import * as postRepository from "../repositories/postRepository.js";
 import * as likeRepository from "../repositories/likeRepository.js";
 import * as hashtagRepository from "../repositories/hashtagRepository.js";
 import * as repostRepository from "../repositories/repostRepository.js";
+import { connection } from "../database/db.js";
 
 //função que procura por # no text
 async function findHashtags(searchText) {
@@ -95,8 +96,11 @@ const postLink = async (req, res) => {
 };
 
 const getLinks = async (req, res) => {
+
+  const { id } = req.params
+
   try {
-    const urls = await timelineRepository.listPosts();
+    const urls = await timelineRepository.listPosts(id);
     const length = await timelineRepository.getLength();
     res.send({urls,length});
   } catch (error) {
@@ -157,4 +161,19 @@ const editPost = async (req, res) => {
   }
 };
 
-export { postLink, getLinks, erasePost, editPost,getUpdate };
+const getIsFollowing = async (req, res) => {
+  const { id } = req.params
+  try {
+    const resp = await connection.query(`SELECT * FROM follows
+    JOIN users
+    ON follows."followerId" = users.id
+    WHERE follows."followerId" = $1
+    ;`, [id])
+
+    res.status(200).send(resp.rows)
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+}
+
+export { postLink, getLinks, erasePost, editPost, getUpdate, getIsFollowing };
